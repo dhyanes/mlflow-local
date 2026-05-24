@@ -17,7 +17,7 @@ os.environ["AWS_ACCESS_KEY_ID"] = "admin"
 os.environ["AWS_SECRET_ACCESS_KEY"] = "password123"
 os.environ["AWS_S3_FORCE_PATH_STYLE"] = "true"
 
-mlflow.set_tracking_uri("http://mlflow.local:32318")
+mlflow.set_tracking_uri("http://192.168.56.10:30500")
 
 mlflow.set_experiment("iris-classification")
 
