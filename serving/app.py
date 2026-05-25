@@ -1,11 +1,10 @@
 import os
-import mlflow
 import mlflow.pyfunc
 import pandas as pd
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+app = FastAPI()
 
 # ==================================================
 # MinIO Configuration
@@ -22,47 +21,26 @@ os.environ["AWS_S3_FORCE_PATH_STYLE"] = "true"
 
 mlflow.set_tracking_uri("http://192.168.56.10:30500")
 
-# ==================================================
-# Load Latest Registered Model
-# ==================================================
+model = mlflow.pyfunc.load_model("models:/iris-randomforest/latest")
 
-model = mlflow.pyfunc.load_model(
-    "models:/iris-randomforest/latest"
-)
-
-# ==================================================
-# FastAPI App
-# ==================================================
-
-app = FastAPI()
-
-
-class IrisRequest(BaseModel):
+class Request(BaseModel):
     sepal_length: float
     sepal_width: float
     petal_length: float
     petal_width: float
 
-
 @app.get("/health")
 def health():
-    return {
-        "status": "healthy"
-    }
-
+    return {"status": "ok"}
 
 @app.post("/predict")
-def predict(data: IrisRequest):
-
-    input_data = pd.DataFrame([{
-        "sepal length (cm)": data.sepal_length,
-        "sepal width (cm)": data.sepal_width,
-        "petal length (cm)": data.petal_length,
-        "petal width (cm)": data.petal_width
+def predict(req: Request):
+    df = pd.DataFrame([{
+        "sepal length (cm)": req.sepal_length,
+        "sepal width (cm)": req.sepal_width,
+        "petal length (cm)": req.petal_length,
+        "petal width (cm)": req.petal_width
     }])
 
-    prediction = model.predict(input_data)
-
-    return {
-        "prediction": int(prediction[0])
-    }
+    pred = model.predict(df)
+    return {"prediction": int(pred[0])}

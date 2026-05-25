@@ -1,6 +1,5 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: postgres
   namespace: mlflow
@@ -20,7 +19,10 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:14
+          image: postgres:15
+
+          ports:
+            - containerPort: 5432
 
           env:
             - name: POSTGRES_USER
@@ -30,10 +32,10 @@ spec:
               value: mlflow123
 
             - name: POSTGRES_DB
-              value: mlflow
+              value: mlflowdb
 
-          ports:
-            - containerPort: 5432
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
 
           volumeMounts:
             - name: postgres-storage
